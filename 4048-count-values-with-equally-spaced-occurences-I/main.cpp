@@ -14,32 +14,33 @@ int run(vector<int> &nums)
 
     for (auto i = 0; i < nums.size(); ++i)
     {
-        const int num = nums[i];
+        int num = nums[i];
         if (bad.find(num) == bad.end())
         {
-            // if not in good, put in good
-            if (good.find(num) == good.end())
+            if (good.find(num) != good.end())
             {
-                good[num] = {1, i, -1};
-            }
-            else
-            {
-                // if in good, see if its still good
-                if (get<2>(good[num]) == -1)
-                {
-                    get<2>(good[num]) = i - get<1>(good[num]);
-                }
-                else if (get<0>(good[num]) + 1 > 3 || i - get<1>(good[num]) != get<2>(good[num]))
-                {
+                int &freq = get<0>(good[num]);
+                int &lastIndex = get<1>(good[num]);
+                int &expectedDistance = get<2>(good[num]);
 
-                    good.erase(num);
-                    bad.insert(num);
+                if (freq <= 2 && ((expectedDistance == -1) || (i - lastIndex) == expectedDistance))
+                {
+                    if (expectedDistance == -1)
+                    {
+                        expectedDistance = (i - lastIndex);
+                    }
+                    ++freq;
+                    lastIndex = i;
                 }
                 else
                 {
-                    get<0>(good[num]) += 1;
-                    get<1>(good[num]) = i;
+                    good.erase(num);
+                    bad.insert(num);
                 }
+            }
+            else
+            {
+                good[num] = {1, i, -1};
             }
         }
     }
@@ -48,17 +49,13 @@ int run(vector<int> &nums)
 
     for (auto &thing : good)
     {
-        if (get<0>(thing) == 3)
+        if (get<0>(thing.second) == 3)
         {
             count++;
         }
-        else
-        {
-            cout << get<0>(thing) << '\n';
-        }
     }
 
-    return good.size();
+    return count;
 }
 
 int main()
@@ -68,8 +65,8 @@ int main()
     vector<int> test3 = {8, 6, 6, 8, 8};
 
     cout << run(test1) << '\n';
-    // cout << run(test2) << '\n';
-    // cout << run(test3) << '\n';
+    cout << run(test2) << '\n';
+    cout << run(test3) << '\n';
 }
 
 // prolem statement:
